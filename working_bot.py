@@ -1,21 +1,15 @@
 import random
-import schedule
 import discord
 from discord.ext import commands, tasks
 
-TOKEN = 'NjkxMDIyNjg0NDk0MTAyNTM5.XndzZw.057cZ_GJmFKP4Igp2SPosI_cqZo'
+TOKEN = 'NjkxMDIyNjg0NDk0MTAyNTM5.XneIUQ.SIc7M9-BSZ2ySk8KRyim-EeejJM'
 GENERAL_CHAT = 691024389730336842
 bot = commands.Bot(command_prefix=['bp ', 'BP ', 'B.P. ', 'b.p. '])
 
 @bot.event
 async def on_ready():
     print('Bot is Ready.')
-    
-@tasks.loop(hours=24, count=5)
-async def count():
-    await bot.wait_until_ready()
-    channel = bot.get_channel(GENERAL_CHAT)
-    await channel.send('Conto!')
+
 
 # ------------------------------ BP CIAO o SILENZIO -----------------------
 @bot.command(aliases=['silenzio', 'ciao'])
@@ -66,6 +60,5 @@ async def on_message(message):
             await channel.send(answer)
             break
 
-# count.start()
 bot.run(TOKEN)
 
