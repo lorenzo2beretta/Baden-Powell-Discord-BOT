@@ -1,29 +1,38 @@
-from discord.ext import commands
-from random import randint
+import random
+from discord.ext import commands, tasks
 
-TOKEN = 'NjkxMDIyNjg0NDk0MTAyNTM5.XndEBQ.8BT1awboOl6roSj_RW0DPX62Fa0'
-client = commands.Bot(command_prefix='master ')
+TOKEN = 'NjkxMDIyNjg0NDk0MTAyNTM5.XndW5Q.T-gHo8bzEW0ka7qlh_6O4aIt_NQ'
+bot = commands.Bot(command_prefix=['bp ', 'BP ', 'B.P. ', 'b.p. '])
+bot.case_insensitive = True
 
-@client.event
+@bot.event
 async def on_ready():
     print('Bot is Ready.')
-    
-@client.command()
-async def scelgo(ctx, name):
-    channel = ctx.channel
-    if channel.name == 'lupi':
-        await ctx.send(f'Avete scelto {name}, domani mattina morirà.')
-    else:
-        await ctx.send('Voi non siete lupi...')
 
+# Questo comando fornisce citazioni di BP quando richiesto
+bp_quotes_file = open('bp_quotes.txt', 'r')
+quotes = bp_quotes_file.readlines()
+quotes = ['"' + quote[:-1] + '"' for quote in quotes]
+bp_quotes_file.close()
+
+@bot.command()
+async def citazione(ctx):
+    channel = ctx.channel
+    epiteto = random.choice(['mio caro', 'mia cara'])
+    intro = f'Eccoti una mia bellissima citazione, {epiteto}!\n'
+    quote = random.choice(quotes)
+    await channel.send(intro + quote)
 
 # Il codice qui sotto rimprovera chi dice le parolacce
 bad_words_file = open('bad_words.txt', 'r')
 content = bad_words_file.read()
-bad_words = set(content.split())
+bad_words = sorted(content.split(), key=lambda s: len(s), reverse=True)
+bad_words_file.close()
 
-@client.event
+@bot.event
 async def on_message(message):
+    # waits commands to be processed
+    await bot.process_commands(message)
     author = message.author
     channel = message.channel
     content = message.content
@@ -31,14 +40,15 @@ async def on_message(message):
         return
     
     # Sceglie l'epiteto di genere in modo casuale
-    epiteto = 'bello' if randint(0, 1) == 0 else 'bella'
-    word_list = content.split()
-    for word in word_list:
-        if word in bad_words:
+    epiteto = random.choice(['bello', 'bella'])
+    word_list = ''.join(content.split())
+    for word in bad_words:
+        if word in word_list:
             stars = '**' + '\*' * (len(word) - 2) + '**'
             censored = word[:1] + stars + word[-1:]
             answer = f'Non si dice {censored}, {epiteto}!'
             await channel.send(answer)
+            break
 
-client.run(TOKEN)
+bot.run(TOKEN)
 
