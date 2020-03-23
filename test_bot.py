@@ -6,7 +6,7 @@ from discord.ext import commands, tasks
 
 with open('token', 'r') as file:
     tokens = [line.split()[0] for line in file.readlines()]
-    TOKEN = tokens[1] if argv[0] == 'test_bot.py' else tokens[1]
+    TOKEN = tokens[0] if argv[0] == 'test_bot.py' else tokens[1]
 # Se un argomento viene fornito al bot allora mi trovo in modalità debug
 # e il bot scrive sulla chat del server "bot arena"
 DEBUG_CHAT = 691024389730336842

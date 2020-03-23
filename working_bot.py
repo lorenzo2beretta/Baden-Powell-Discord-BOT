@@ -5,14 +5,15 @@ from datetime import datetime
 from discord.ext import commands, tasks
 
 with open('token', 'r') as file:
-    TOKEN = file.read()
+    tokens = [line.split()[0] for line in file.readlines()]
+    TOKEN = tokens[0] if argv[0] == 'test_bot.py' else tokens[1]
 # Se un argomento viene fornito al bot allora mi trovo in modalità debug
 # e il bot scrive sulla chat del server "bot arena"
 DEBUG_CHAT = 691024389730336842
 REPARTO_CHAT = 690344893675339962
-GENERAL_CHAT = DEBUG_CHAT if len(argv) > 1 else REPARTO_CHAT
+GENERAL_CHAT = DEBUG_CHAT if argv[0] == 'test_bot.py' else REPARTO_CHAT
 
-bot = commands.Bot(command_prefix=['bp ', 'BP ', 'B.P. ', 'b.p. ', 'Baden ', 'Ciccio '])
+bot = commands.Bot(command_prefix=['bp ', 'BP ', 'B.P. ', 'b.p. '])
 bot.description = 'Sono il fondatore del moviemento Scout!'
 
 @bot.event
