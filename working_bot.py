@@ -12,7 +12,7 @@ DEBUG_CHAT = 691024389730336842
 REPARTO_CHAT = 690344893675339962
 GENERAL_CHAT = DEBUG_CHAT if len(argv) > 1 else REPARTO_CHAT
 
-bot = commands.Bot(command_prefix=['bp ', 'BP ', 'B.P. ', 'b.p. '])
+bot = commands.Bot(command_prefix=['bp ', 'BP ', 'B.P. ', 'b.p. ', 'Baden ', 'Ciccio '])
 bot.description = 'Sono il fondatore del moviemento Scout!'
 
 @bot.event
@@ -54,7 +54,7 @@ with open('bp_quotes.txt', 'r') as file:
 async def citazione(ctx):
     channel = ctx.channel
     epiteto = random.choice(['mio caro', 'mia cara'])
-    post = f'Eccoti una mia bellissima citazione {epiteto}!\n'
+    post = 'Eccoti una mia bellissima citazione {}!\n'.format(epiteto)
     post += random.choice(quotes)
     await channel.send(post)
 
@@ -70,7 +70,7 @@ async def reproach(channel, content):
         if word in word_list:
             stars = '**' + '\*' * (len(word) - 2) + '**'
             censored = word[:1] + stars + word[-1:]
-            post = f'Non si dice {censored}, {epiteto}!'
+            post = 'Non si dice {}, {}!'.format(censored, epiteto)
             await channel.send(post)
             return True
     return False

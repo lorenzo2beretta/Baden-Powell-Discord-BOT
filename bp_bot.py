@@ -12,7 +12,7 @@ DEBUG_CHAT = 691024389730336842
 REPARTO_CHAT = 690344893675339962
 GENERAL_CHAT = DEBUG_CHAT if len(argv) > 1 else REPARTO_CHAT
 
-bot = commands.Bot(command_prefix=['bp ', 'BP ', 'B.P. ', 'b.p. '])
+bot = commands.Bot(command_prefix=['bp ', 'BP ', 'B.P. ', 'b.p. ', 'Baden ', 'Ciccio '])
 bot.description = 'Sono il fondatore del moviemento Scout!'
 
 @bot.event
