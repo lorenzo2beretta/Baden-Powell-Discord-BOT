@@ -1,14 +1,12 @@
 import random
 import discord
 from sys import argv
-from datetime import datetime
+from datetime import datetime, timedelta
 from discord.ext import commands, tasks
 
 with open('token', 'r') as file:
     tokens = [line.split()[0] for line in file.readlines()]
     TOKEN = tokens[0] if argv[0] == 'test_bot.py' else tokens[1]
-# Se un argomento viene fornito al bot allora mi trovo in modalità debug
-# e il bot scrive sulla chat del server "bot arena"
 DEBUG_CHAT = 691024389730336842
 REPARTO_CHAT = 690344893675339962
 GENERAL_CHAT = DEBUG_CHAT if argv[0] == 'test_bot.py' else REPARTO_CHAT
@@ -21,43 +19,62 @@ async def on_ready():
     print('Bot is Ready.')
 
 # ------------------- FUNZIONI DA CHIAMARE PERIODICAMENTE --------------------
-@tasks.loop(seconds=60, count=3)
-async def coppia():
-    start_time = datetime.strptime('14:00', '%H:%M')
-    diff = datetime.now() - start_time
-    if diff.seconds < 60:
-        channel = bot.get_channel(GENERAL_CHAT)
-        users = channel.guild.members
-        user1, user2 = random.sample(users, 2)
-        adjectives = ['bellissima', 'pazzesca', 'promettente', 'fichissima']
-        post = 'La '
-        post += random.choice(adjectives)
-        post += ' coppia del giorno è costituita da '
-        post += user1.mention + ' e '
-        post += user2.mention + '.'
-        await channel.send(post)
+# Define my custom decorator that takes a datetime objects or list 
+# of datetime objects as input
+def scheduled_loop(timestamps):
+    if not isinstance(timestamps, list):
+        timestamps = [timestamps]
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+            await bot.wait_until_ready()
+            istime = lambda dt: (datetime.now() - dt).seconds < 60
+            if any([istime(dt) for dt in timestamps]):
+                await func(*args, **kwargs)
+        return tasks.loop(seconds=60)(wrapper)
+    return decorator
 
-# ------------------------------ BP SILENZIO -------------------------------
-scout_sign_picture = discord.File('scout_sign.jpg')
-
-@bot.command(aliases=['silenzio', 'zitti'])
-async def saluto(ctx):
-    channel = ctx.channel    
-    await channel.send(file=scout_sign_picture)
-
-
-# ------------------------------ CITAZIONI BP -----------------------------
+# --------------------------- PERIODICHE CITAZIONI DI BP ----------------------
 with open('bp_quotes.txt', 'r') as file:
     quotes = file.readlines()
     quotes = ['"' + quote[:-1] + '"' for quote in quotes]
 
-@bot.command(aliases=['cit', 'quote', 'frase', 'cit.'])
-async def citazione(ctx):
-    channel = ctx.channel
-    epiteto = random.choice(['mio caro', 'mia cara'])
-    post = 'Eccoti una mia bellissima citazione {}!\n'.format(epiteto)
+@scheduled_loop(datetime.strptime('16:10', '%H:%M'))
+async def citazione():
+    channel = bot.get_channel(GENERAL_CHAT)
+    post = 'Eccotvi una mia bellissima citazione!\n'
     post += random.choice(quotes)
     await channel.send(post)
+
+# ------------------------- PERIOCDICHE COPPIE ---------------------------
+@scheduled_loop(datetime.strptime('14:00', '%H:%M'))
+async def coppia():
+    channel = bot.get_channel(GENERAL_CHAT)
+    users = channel.guild.members
+    user1, user2 = random.sample(users, 2)
+    adjectives = ['bellissima', 'pazzesca', 'promettente', 'fichissima']
+    post = 'La '
+    post += random.choice(adjectives)
+    post += ' coppia del giorno è costituita da '
+    post += user1.mention + ' e '
+    post += user2.mention + '.'
+    await channel.send(post)
+
+# ------------------------ AVVISIO POSTA -----------------------------------
+@scheduled_loop(datetime.strptime('18:00', '%H:%M'))
+async def avviso_posta():
+    channel = bot.get_channel(GENERAL_CHAT)
+    post = '**POSTA ANONIMA**\n\n'
+    with open('posta_anonima', 'r') as file:
+        post += file.read()
+    await channel.send(post)
+
+# ------------------------------ BP SILENZIO -------------------------------
+scout_sign_picture = discord.File('scout_sign.jpg')
+
+@bot.command(aliases=['saluto', 'zitti'])
+async def silenzio(ctx):
+    channel = ctx.channel    
+    await channel.send(file=scout_sign_picture)
 
 # --------------------------- RIMPROVERO PAROLACCE --------------------------
 with open('bad_words.txt', 'r') as file:
@@ -123,6 +140,7 @@ async def on_message(message):
     
         
     
-
-coppia.start()    
+# avviso_posta.start()
+# coppia.start()
+citazione.start()    
 bot.run(TOKEN)
