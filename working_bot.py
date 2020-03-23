@@ -85,6 +85,7 @@ async def reproach(message):
     content = message.content
     epiteto = random.choice(['bello', 'bella'])
     word_list = ''.join(content.split())
+    word_list = word_list.lower()
     for word in bad_words:
         if word in word_list:
             stars = '**' + '\*' * (len(word) - 2) + '**'
