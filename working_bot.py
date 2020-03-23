@@ -1,7 +1,7 @@
 import random
 import discord
 from sys import argv
-from datetime import datetime, timedelta
+from datetime import datetime
 from discord.ext import commands, tasks
 
 with open('token', 'r') as file:
@@ -19,8 +19,7 @@ async def on_ready():
     print('Bot is Ready.')
 
 # ------------------- FUNZIONI DA CHIAMARE PERIODICAMENTE --------------------
-# Define my custom decorator that takes a datetime objects or list 
-# of datetime objects as input
+# Decorator that takes a datetime objects or list of datetime objects as input
 def scheduled_loop(timestamps):
     if not isinstance(timestamps, list):
         timestamps = [timestamps]
@@ -81,7 +80,9 @@ with open('bad_words.txt', 'r') as file:
     content = file.read()
     bad_words = sorted(content.split(), key=lambda s: len(s), reverse=True)
     
-async def reproach(channel, content):
+async def reproach(message):
+    channel = message.channel
+    content = message.content
     epiteto = random.choice(['bello', 'bella'])
     word_list = ''.join(content.split())
     for word in bad_words:
@@ -93,8 +94,7 @@ async def reproach(channel, content):
             return True
     return False
 
-# Struttura dati che conserva i messaggi con url degli ultimi 2 minuti
-
+# -------------------------- RIMPROVERO GIF --------------------------------
 class gif_handler():
     gif_msg = []
     
@@ -115,32 +115,33 @@ class gif_handler():
             post = 'Ragazzi, mi avete ricorperto di GIF!'
             await channel.send(post)
 
-gif_cop = gif_handler(max_gif=1)            
+gif_cop = gif_handler()            
 
+# ------------------------- SERVIZIO DI POSTA ANONIMA ----------------------
+async def anonymous_mail(message):
+    channel = message.channel
+    content = message.content
+    chat_channel = bot.get_channel(GENERAL_CHAT)
+    private_post = 'Scriverò quanto mi hai detto in forma anonima sulla chat.'
+    await channel.send(private_post)
+    public_post = '**Messaggio Anonimo:** ' + content
+    await chat_channel.send(public_post)
+
+# ----------------- GESTORE DELLE AZIONI INNESCATE DA UN MESSAGGIO ----------
 @bot.event
 async def on_message(message):
     # waits commands to be processed
     await bot.process_commands(message)    
-    author = message.author
-    channel = message.channel
-    content = message.content
-    if author.bot:
+    if message.author.bot:
         return
     
-    await gif_cop.add(message)
-        
-    reproached = await reproach(channel, content)
-    # Spotted bot part
+    await gif_cop.add(message)    
+    reproached = await reproach(message)
+    channel = message.channel
     if isinstance(channel, discord.channel.DMChannel) and not reproached:
-        chat_channel = bot.get_channel(GENERAL_CHAT)
-        private_post = 'Scriverò quanto mi hai detto in forma anonima sulla chat.'
-        await channel.send(private_post)
-        public_post = '**Messaggio Anonimo:** ' + content
-        await chat_channel.send(public_post)
+        await anonymous_mail(message)        
     
-        
-    
-# avviso_posta.start()
-# coppia.start()
+avviso_posta.start()
+coppia.start()
 citazione.start()    
 bot.run(TOKEN)
