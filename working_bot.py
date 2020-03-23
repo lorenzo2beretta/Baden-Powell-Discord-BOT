@@ -5,8 +5,7 @@ from datetime import datetime
 from discord.ext import commands, tasks
 
 with open('token', 'r') as file:
-    tokens = [line.split()[0] for line in file.readlines()]
-    TOKEN = tokens[0] if argv[0] == 'test_bot.py' else tokens[1]
+    TOKEN = file.read()
 DEBUG_CHAT = 691024389730336842
 REPARTO_CHAT = 690344893675339962
 GENERAL_CHAT = DEBUG_CHAT if argv[0] == 'test_bot.py' else REPARTO_CHAT
@@ -37,7 +36,7 @@ with open('bp_quotes.txt', 'r') as file:
     quotes = file.readlines()
     quotes = ['"' + quote[:-1] + '"' for quote in quotes]
 
-@scheduled_loop(datetime.strptime('16:10', '%H:%M'))
+@scheduled_loop(datetime.strptime('18:00', '%H:%M'))
 async def citazione():
     channel = bot.get_channel(GENERAL_CHAT)
     post = 'Eccovi una mia bellissima citazione!\n'
@@ -59,7 +58,7 @@ async def coppia():
     await channel.send(post)
 
 # ------------------------ AVVISIO POSTA -----------------------------------
-@scheduled_loop(datetime.strptime('18:00', '%H:%M'))
+@scheduled_loop(datetime.strptime('21:00', '%H:%M'))
 async def avviso_posta():
     channel = bot.get_channel(GENERAL_CHAT)
     post = '**POSTA ANONIMA**\n\n'
