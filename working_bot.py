@@ -41,7 +41,7 @@ with open('bp_quotes.txt', 'r') as file:
 @scheduled_loop(datetime.strptime('16:10', '%H:%M'))
 async def citazione():
     channel = bot.get_channel(GENERAL_CHAT)
-    post = 'Eccotvi una mia bellissima citazione!\n'
+    post = 'Eccovi una mia bellissima citazione!\n'
     post += random.choice(quotes)
     await channel.send(post)
 
