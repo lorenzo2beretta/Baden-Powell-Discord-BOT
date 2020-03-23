@@ -58,7 +58,7 @@ async def coppia():
     await channel.send(post)
 
 # ------------------------ AVVISIO POSTA -----------------------------------
-@scheduled_loop(datetime.strptime('21:00', '%H:%M'))
+@scheduled_loop(datetime.strptime('21:30', '%H:%M'))
 async def avviso_posta():
     channel = bot.get_channel(GENERAL_CHAT)
     post = '**POSTA ANONIMA**\n\n'
