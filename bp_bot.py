@@ -54,7 +54,7 @@ with open('bp_quotes.txt', 'r') as file:
 async def citazione(ctx):
     channel = ctx.channel
     epiteto = random.choice(['mio caro', 'mia cara'])
-    post = f'Eccoti una mia bellissima citazione {}!\n'.format(epiteto)
+    post = 'Eccoti una mia bellissima citazione {}!\n'.format(epiteto)
     post += random.choice(quotes)
     await channel.send(post)
 
