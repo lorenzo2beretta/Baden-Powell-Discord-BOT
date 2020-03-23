@@ -25,22 +25,22 @@ def scheduled_loop(timestamps):
     def decorator(func):
         async def wrapper(*args, **kwargs):
             await bot.wait_until_ready()
-            istime = lambda dt: (datetime.now() - dt).seconds < 60
-            if any([istime(dt) for dt in timestamps]):
+            is_time = lambda dt: (datetime.now() - dt).seconds < 60
+            if any([is_time(dt) for dt in timestamps]):
                 await func(*args, **kwargs)
         return tasks.loop(seconds=60)(wrapper)
     return decorator
 
 # --------------------------- PERIODICHE CITAZIONI DI BP ----------------------
 with open('bp_quotes.txt', 'r') as file:
-    quotes = file.readlines()
-    quotes = ['"' + quote[:-1] + '"' for quote in quotes]
+    bp_quotes = file.readlines()
+    bp_quotes = ['"' + quote[:-1] + '"' for quote in bp_quotes]
 
 @scheduled_loop(datetime.strptime('18:00', '%H:%M'))
 async def citazione():
     channel = bot.get_channel(GENERAL_CHAT)
     post = 'Eccovi una mia bellissima citazione!\n'
-    post += random.choice(quotes)
+    post += random.choice(bp_quotes)
     await channel.send(post)
 
 # ------------------------- PERIOCDICHE COPPIE ---------------------------
@@ -76,8 +76,8 @@ async def silenzio(ctx):
 
 # --------------------------- RIMPROVERO PAROLACCE --------------------------
 with open('bad_words.txt', 'r') as file:
-    content = file.read()
-    bad_words = sorted(content.split(), key=lambda s: len(s), reverse=True)
+    bad_words = file.read()
+    bad_words = sorted(bad_words.split(), key=lambda s: len(s), reverse=True)
     
 async def reproach(message):
     channel = message.channel
