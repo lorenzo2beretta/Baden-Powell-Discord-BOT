@@ -1,15 +1,20 @@
 import random
 import discord
 import os
-from sys import argv
+import sys
 from datetime import datetime
 from discord.ext import commands, tasks
 
 with open('token', 'r') as file:
     TOKEN = file.read()
+logger = open('logger', 'w')
+sys.stderr = logger
+sys.stdout = logger
+
+LORENZO_ID = 691214172360409117 
 DEBUG_CHAT = 691024389730336842
 REPARTO_CHAT = 690344893675339962
-GENERAL_CHAT = DEBUG_CHAT if len(argv) > 1 else REPARTO_CHAT
+GENERAL_CHAT = DEBUG_CHAT if len(sys.argv) > 1 else REPARTO_CHAT
 
 command_prefix = ['bp ', 'BP ', 'B.P. ', 'b.p. ']
 bot = commands.Bot(command_prefix=command_prefix)
@@ -39,9 +44,19 @@ with open('bp_quotes.txt', 'r') as file:
     bp_quotes = ['"' + quote[:-1] + '"' for quote in bp_quotes]
 
 @scheduled_loop(datetime.strptime('20:00', '%H:%M'))
-async def citazione():
+async def periodica_citazione():
     channel = bot.get_channel(GENERAL_CHAT)
     post = 'Eccovi una mia bellissima citazione!\n'
+    post += random.choice(bp_quotes)
+    await channel.send(post)
+
+# ------------------------ COMANDO CITAZIONI DI BP ----------------------------
+
+@bot.command(aliases=['cit', 'quote', 'frase'])
+async def citazione(ctx):
+    channel = ctx.channel
+    author = ctx.author
+    post = 'Eccoti una mia bellissima citazione {}!\n'.format(author.mention)
     post += random.choice(bp_quotes)
     await channel.send(post)
 
@@ -132,7 +147,13 @@ gif_cop = gif_handler()
 async def anonymous_mail(message):
     channel = message.channel
     content = message.content
+    author = message.author
     chat_channel = bot.get_channel(GENERAL_CHAT)
+    
+    if author.id == LORENZO_ID:
+        await chat_channel.send(content)
+        return
+    
     private_post = 'Scriverò quanto mi hai detto in forma anonima sulla chat.'
     await channel.send(private_post)
     public_post = '**Messaggio Anonimo:** ' + content
@@ -157,5 +178,5 @@ async def on_message(message):
 
 proiezione_foto.start()
 avviso_posta.start()
-citazione.start()    
+periodica_citazione.start()    
 bot.run(TOKEN)
