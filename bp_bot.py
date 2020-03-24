@@ -1,5 +1,6 @@
 import random
 import discord
+import os
 from sys import argv
 from datetime import datetime
 from discord.ext import commands, tasks
@@ -8,7 +9,7 @@ with open('token', 'r') as file:
     TOKEN = file.read()
 DEBUG_CHAT = 691024389730336842
 REPARTO_CHAT = 690344893675339962
-GENERAL_CHAT = DEBUG_CHAT if argv[0] == 'test_bot.py' else REPARTO_CHAT
+GENERAL_CHAT = DEBUG_CHAT if len(argv[1]) else REPARTO_CHAT
 
 bot = commands.Bot(command_prefix=['bp ', 'BP ', 'B.P. ', 'b.p. '])
 bot.description = 'Sono il fondatore del moviemento Scout!'
@@ -25,22 +26,22 @@ def scheduled_loop(timestamps):
     def decorator(func):
         async def wrapper(*args, **kwargs):
             await bot.wait_until_ready()
-            istime = lambda dt: (datetime.now() - dt).seconds < 60
-            if any([istime(dt) for dt in timestamps]):
+            is_time = lambda dt: (datetime.now() - dt).seconds < 60
+            if any([is_time(dt) for dt in timestamps]):
                 await func(*args, **kwargs)
         return tasks.loop(seconds=60)(wrapper)
     return decorator
 
 # --------------------------- PERIODICHE CITAZIONI DI BP ----------------------
 with open('bp_quotes.txt', 'r') as file:
-    quotes = file.readlines()
-    quotes = ['"' + quote[:-1] + '"' for quote in quotes]
+    bp_quotes = file.readlines()
+    bp_quotes = ['"' + quote[:-1] + '"' for quote in bp_quotes]
 
 @scheduled_loop(datetime.strptime('18:00', '%H:%M'))
 async def citazione():
     channel = bot.get_channel(GENERAL_CHAT)
     post = 'Eccovi una mia bellissima citazione!\n'
-    post += random.choice(quotes)
+    post += random.choice(bp_quotes)
     await channel.send(post)
 
 # ------------------------- PERIOCDICHE COPPIE ---------------------------
@@ -56,6 +57,20 @@ async def coppia():
     post += user1.mention + ' e '
     post += user2.mention + '.'
     await channel.send(post)
+
+# ------------------------- PROIEZIONE FOTO -------------------------------
+picture_times = ['13:00', '15:00', '17:00', '19:00']
+picture_times = [datetime.strptime(s, '%H:%M') for s in picture_times]
+picture_names = os.listdir('./foto_campi/')
+
+# @scheduled_loop(picture_times)
+@bot.command()
+async def proiezione_foto(ctx):
+    channel = ctx.channel
+    # bot.get_channel(GENERAL_CHAT)
+    picture = './foto_campi/' + random.choice(picture_names)
+    post = 'Ecco una foto di me da giovane!'
+    await channel.send(post, file=discord.File(picture))
 
 # ------------------------ AVVISIO POSTA -----------------------------------
 @scheduled_loop(datetime.strptime('21:30', '%H:%M'))
@@ -76,8 +91,8 @@ async def silenzio(ctx):
 
 # --------------------------- RIMPROVERO PAROLACCE --------------------------
 with open('bad_words.txt', 'r') as file:
-    content = file.read()
-    bad_words = sorted(content.split(), key=lambda s: len(s), reverse=True)
+    bad_words = file.read()
+    bad_words = sorted(bad_words.split(), key=lambda s: len(s), reverse=True)
     
 async def reproach(message):
     channel = message.channel
@@ -140,7 +155,8 @@ async def on_message(message):
     channel = message.channel
     if isinstance(channel, discord.channel.DMChannel) and not reproached:
         await anonymous_mail(message)        
-    
+
+# proiezione_foto.start()
 avviso_posta.start()
 coppia.start()
 citazione.start()    
