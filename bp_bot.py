@@ -53,9 +53,19 @@ picture_names = os.listdir('./foto_campi/')
 async def proiezione_foto():
     channel = bot.get_channel(GENERAL_CHAT)
     picture = './foto_campi/' + random.choice(picture_names)
-    post = 'Ecco una foto di me da giovane!'
+    post = 'Ecco una foto di me da giovane!\n'
+    post += 'Se vuoi altre foto scrivi `bp foto`'
     await channel.send(post, file=discord.File(picture))
 
+# -------------------------- COMANDO FOTO ---------------------------------
+@bot.command(aliases=['pic', 'immagine'])
+async def foto(ctx):
+    channel = ctx.channel
+    picture = './foto_campi/' + random.choice(picture_names)
+    author = ctx.author
+    post = 'Ecco la tua foto {}.'.format(author.mention)
+    await channel.send(post, file=discord.File(picture))
+    
 # ------------------------ AVVISIO POSTA -----------------------------------
 @scheduled_loop(datetime.strptime('21:00', '%H:%M'))
 async def avviso_posta():
