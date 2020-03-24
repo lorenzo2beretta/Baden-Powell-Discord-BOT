@@ -27,7 +27,7 @@ def scheduled_loop(timestamps):
         async def wrapper(*args, **kwargs):
             await bot.wait_until_ready()
             is_time = lambda dt: (datetime.now() - dt).seconds < 60
-            if any([is_time(dt) for dt in timestamps]):
+            if any(is_time(dt) for dt in timestamps):
                 await func(*args, **kwargs)
         return tasks.loop(seconds=60)(wrapper)
     return decorator
