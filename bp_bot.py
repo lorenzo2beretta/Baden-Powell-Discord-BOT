@@ -63,11 +63,9 @@ picture_times = ['13:00', '15:00', '17:00', '19:00']
 picture_times = [datetime.strptime(s, '%H:%M') for s in picture_times]
 picture_names = os.listdir('./foto_campi/')
 
-# @scheduled_loop(picture_times)
-@bot.command()
+@scheduled_loop(picture_times)
 async def proiezione_foto(ctx):
-    channel = ctx.channel
-    # bot.get_channel(GENERAL_CHAT)
+    channel = bot.get_channel(GENERAL_CHAT)
     picture = './foto_campi/' + random.choice(picture_names)
     post = 'Ecco una foto di me da giovane!'
     await channel.send(post, file=discord.File(picture))
@@ -156,7 +154,7 @@ async def on_message(message):
     if isinstance(channel, discord.channel.DMChannel) and not reproached:
         await anonymous_mail(message)        
 
-# proiezione_foto.start()
+proiezione_foto.start()
 avviso_posta.start()
 coppia.start()
 citazione.start()    
