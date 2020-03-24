@@ -9,7 +9,7 @@ with open('token', 'r') as file:
     TOKEN = file.read()
 DEBUG_CHAT = 691024389730336842
 REPARTO_CHAT = 690344893675339962
-GENERAL_CHAT = DEBUG_CHAT if len(argv) else REPARTO_CHAT
+GENERAL_CHAT = DEBUG_CHAT if len(argv) > 1 else REPARTO_CHAT
 
 bot = commands.Bot(command_prefix=['bp ', 'BP ', 'B.P. ', 'b.p. '])
 bot.description = 'Sono il fondatore del moviemento Scout!'
@@ -37,7 +37,7 @@ with open('bp_quotes.txt', 'r') as file:
     bp_quotes = file.readlines()
     bp_quotes = ['"' + quote[:-1] + '"' for quote in bp_quotes]
 
-@scheduled_loop(datetime.strptime('18:00', '%H:%M'))
+@scheduled_loop(datetime.strptime('20:00', '%H:%M'))
 async def citazione():
     channel = bot.get_channel(GENERAL_CHAT)
     post = 'Eccovi una mia bellissima citazione!\n'
@@ -45,7 +45,7 @@ async def citazione():
     await channel.send(post)
 
 # ------------------------- PROIEZIONE FOTO -------------------------------
-picture_times = ['13:00', '15:00', '16:10', '17:00', '19:00']
+picture_times = ['13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00']
 picture_times = [datetime.strptime(s, '%H:%M') for s in picture_times]
 picture_names = os.listdir('./foto_campi/')
 
