@@ -45,12 +45,12 @@ async def citazione():
     await channel.send(post)
 
 # ------------------------- PROIEZIONE FOTO -------------------------------
-picture_times = ['13:00', '15:00', '17:00', '19:00']
+picture_times = ['13:00', '15:00', '16:10', '17:00', '19:00']
 picture_times = [datetime.strptime(s, '%H:%M') for s in picture_times]
 picture_names = os.listdir('./foto_campi/')
 
 @scheduled_loop(picture_times)
-async def proiezione_foto(ctx):
+async def proiezione_foto():
     channel = bot.get_channel(GENERAL_CHAT)
     picture = './foto_campi/' + random.choice(picture_names)
     post = 'Ecco una foto di me da giovane!'
