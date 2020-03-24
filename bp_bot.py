@@ -11,7 +11,8 @@ DEBUG_CHAT = 691024389730336842
 REPARTO_CHAT = 690344893675339962
 GENERAL_CHAT = DEBUG_CHAT if len(argv) > 1 else REPARTO_CHAT
 
-bot = commands.Bot(command_prefix=['bp ', 'BP ', 'B.P. ', 'b.p. '])
+command_prefix = ['bp ', 'BP ', 'B.P. ', 'b.p. ']
+bot = commands.Bot(command_prefix=command_prefix)
 bot.description = 'Sono il fondatore del moviemento Scout!'
 
 @bot.event
@@ -53,9 +54,10 @@ picture_names = os.listdir('./foto_campi/')
 async def proiezione_foto():
     channel = bot.get_channel(GENERAL_CHAT)
     picture = './foto_campi/' + random.choice(picture_names)
-    post = 'Ecco una foto di me da giovane!\n'
-    post += 'Se vuoi altre foto scrivi `bp foto`'
+    post = 'Ecco una foto di me da giovane!'
     await channel.send(post, file=discord.File(picture))
+    post = 'Se vuoi altre foto scrivi `bp foto`.'
+    await channel.send(post)
 
 # -------------------------- COMANDO FOTO ---------------------------------
 @bot.command(aliases=['pic', 'immagine'])
@@ -147,7 +149,10 @@ async def on_message(message):
     await gif_cop.add(message)    
     reproached = await reproach(message)
     channel = message.channel
-    if isinstance(channel, discord.channel.DMChannel) and not reproached:
+    is_private = isinstance(channel, discord.channel.DMChannel)
+    content = message.content
+    is_command = any(content.startswith(s) for s in command_prefix)
+    if is_private and not is_command and not reproached:
         await anonymous_mail(message)        
 
 proiezione_foto.start()
