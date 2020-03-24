@@ -9,7 +9,7 @@ with open('token', 'r') as file:
     TOKEN = file.read()
 DEBUG_CHAT = 691024389730336842
 REPARTO_CHAT = 690344893675339962
-GENERAL_CHAT = DEBUG_CHAT if len(argv[1]) else REPARTO_CHAT
+GENERAL_CHAT = DEBUG_CHAT if len(argv) else REPARTO_CHAT
 
 bot = commands.Bot(command_prefix=['bp ', 'BP ', 'B.P. ', 'b.p. '])
 bot.description = 'Sono il fondatore del moviemento Scout!'
