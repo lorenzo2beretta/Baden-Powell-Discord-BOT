@@ -56,7 +56,7 @@ async def proiezione_foto():
     picture = './foto_campi/' + random.choice(picture_names)
     post = 'Ecco una foto di me da giovane!'
     await channel.send(post, file=discord.File(picture))
-    post = 'Se vuoi altre foto scrivi `bp foto`.'
+    post = 'Se vuoi altre foto scrivi **bp foto**.'
     await channel.send(post)
 
 # -------------------------- COMANDO FOTO ---------------------------------
