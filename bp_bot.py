@@ -44,20 +44,6 @@ async def citazione():
     post += random.choice(bp_quotes)
     await channel.send(post)
 
-# ------------------------- PERIOCDICHE COPPIE ---------------------------
-@scheduled_loop(datetime.strptime('14:00', '%H:%M'))
-async def coppia():
-    channel = bot.get_channel(GENERAL_CHAT)
-    users = channel.guild.members
-    user1, user2 = random.sample(users, 2)
-    adjectives = ['bellissima', 'pazzesca', 'promettente', 'fichissima']
-    post = 'La '
-    post += random.choice(adjectives)
-    post += ' coppia del giorno è costituita da '
-    post += user1.mention + ' e '
-    post += user2.mention + '.'
-    await channel.send(post)
-
 # ------------------------- PROIEZIONE FOTO -------------------------------
 picture_times = ['13:00', '15:00', '17:00', '19:00']
 picture_times = [datetime.strptime(s, '%H:%M') for s in picture_times]
@@ -71,7 +57,7 @@ async def proiezione_foto(ctx):
     await channel.send(post, file=discord.File(picture))
 
 # ------------------------ AVVISIO POSTA -----------------------------------
-@scheduled_loop(datetime.strptime('21:30', '%H:%M'))
+@scheduled_loop(datetime.strptime('21:00', '%H:%M'))
 async def avviso_posta():
     channel = bot.get_channel(GENERAL_CHAT)
     post = '**POSTA ANONIMA**\n\n'
@@ -156,6 +142,5 @@ async def on_message(message):
 
 proiezione_foto.start()
 avviso_posta.start()
-coppia.start()
 citazione.start()    
 bot.run(TOKEN)
