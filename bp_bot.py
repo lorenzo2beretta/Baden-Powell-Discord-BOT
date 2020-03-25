@@ -7,9 +7,6 @@ from discord.ext import commands, tasks
 
 with open('token', 'r') as file:
     TOKEN = file.read()
-logger = open('logger', 'w')
-sys.stderr = logger
-sys.stdout = logger
 
 LORENZO_ID = 691214172360409117 
 DEBUG_CHAT = 691024389730336842
@@ -18,6 +15,11 @@ CAPANNONE_CHAT = 691315170823372811
 if len(sys.argv) > 1:
     REPARTO_CHAT = DEBUG_CHAT
     CAPANNONE_CHAT = DEBUG_CHAT
+else:
+    logger = open('logger', 'w')
+    sys.stderr = logger
+    sys.stdout = logger
+
 
 command_prefix = ['bp ', 'BP ', 'B.P. ', 'b.p. ']
 bot = commands.Bot(command_prefix=command_prefix)
@@ -102,7 +104,7 @@ scout_sign_picture = discord.File('scout_sign.jpg')
 async def silenzio(ctx):
     channel = ctx.channel    
     await channel.send(file=scout_sign_picture)
-
+    
 # --------------------------- RIMPROVERO PAROLACCE --------------------------
 with open('bad_words.txt', 'r') as file:
     bad_words = file.read()
@@ -146,16 +148,29 @@ class gif_handler():
 
 gif_cop = gif_handler()            
 
+# -------------------------- COMANDO PRIMA PERSONA --------------------------
+
+@bot.command()
+async def parla(ctx, *args):
+    author = ctx.author
+    channel = ctx.channel
+    
+    if author.id != LORENZO_ID or len(args) == 0:
+        post = 'Non vorrai mettermi in bocca parole non mie!?'
+        await channel.send(post)
+        return
+    
+    if args[0] == 'capannone':
+        chat_channel = bot.get_channel(CAPANNONE_CHAT)
+    else:
+        chat_channel = bot.get_channel(REPARTO_CHAT)
+    await chat_channel.send(' '.join(args[1:]))
+
 # ------------------------- SERVIZIO DI POSTA ANONIMA ----------------------
 async def anonymous_mail(message):
     channel = message.channel
     content = message.content
-    author = message.author
     chat_channel = bot.get_channel(CAPANNONE_CHAT)
-    
-    if author.id == LORENZO_ID:
-        await chat_channel.send(content)
-        return
     
     private_post = 'Scriverò quanto mi hai detto in forma anonima sulla chat.'
     await channel.send(private_post)
