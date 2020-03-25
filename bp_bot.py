@@ -21,7 +21,7 @@ else:
     sys.stdout = logger
 
 
-command_prefix = ['bp ', 'BP ', 'B.P. ', 'b.p. ']
+command_prefix = ['bp ', 'BP ', 'B.P. ', 'b.p. ', 'Bp ']
 bot = commands.Bot(command_prefix=command_prefix)
 bot.description = 'Sono il fondatore del moviemento Scout!'
 
