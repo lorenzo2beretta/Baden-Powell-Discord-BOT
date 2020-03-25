@@ -14,7 +14,10 @@ sys.stdout = logger
 LORENZO_ID = 691214172360409117 
 DEBUG_CHAT = 691024389730336842
 REPARTO_CHAT = 690344893675339962
-GENERAL_CHAT = DEBUG_CHAT if len(sys.argv) > 1 else REPARTO_CHAT
+CAPANNONE_CHAT = 691315170823372811
+if len(sys.argv) > 1:
+    REPARTO_CHAT = DEBUG_CHAT
+    CAPANNONE_CHAT = DEBUG_CHAT
 
 command_prefix = ['bp ', 'BP ', 'B.P. ', 'b.p. ']
 bot = commands.Bot(command_prefix=command_prefix)
@@ -45,7 +48,7 @@ with open('bp_quotes.txt', 'r') as file:
 
 @scheduled_loop(datetime.strptime('20:00', '%H:%M'))
 async def periodica_citazione():
-    channel = bot.get_channel(GENERAL_CHAT)
+    channel = bot.get_channel(REPARTO_CHAT)
     post = 'Eccovi una mia bellissima citazione!\n'
     post += random.choice(bp_quotes)
     await channel.send(post)
@@ -67,7 +70,7 @@ picture_names = os.listdir('./foto_campi/')
 
 @scheduled_loop(picture_times)
 async def proiezione_foto():
-    channel = bot.get_channel(GENERAL_CHAT)
+    channel = bot.get_channel(REPARTO_CHAT)
     picture = './foto_campi/' + random.choice(picture_names)
     post = 'Ecco una foto di me da giovane!'
     await channel.send(post, file=discord.File(picture))
@@ -86,7 +89,7 @@ async def foto(ctx):
 # ------------------------ AVVISIO POSTA -----------------------------------
 @scheduled_loop(datetime.strptime('21:00', '%H:%M'))
 async def avviso_posta():
-    channel = bot.get_channel(GENERAL_CHAT)
+    channel = bot.get_channel(CAPANNONE_CHAT)
     post = '**POSTA ANONIMA**\n\n'
     with open('posta_anonima', 'r') as file:
         post += file.read()
@@ -148,7 +151,7 @@ async def anonymous_mail(message):
     channel = message.channel
     content = message.content
     author = message.author
-    chat_channel = bot.get_channel(GENERAL_CHAT)
+    chat_channel = bot.get_channel(CAPANNONE_CHAT)
     
     if author.id == LORENZO_ID:
         await chat_channel.send(content)
