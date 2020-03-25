@@ -114,10 +114,15 @@ async def reproach(message):
     channel = message.channel
     content = message.content
     epiteto = random.choice(['bello', 'bella'])
-    word_list = ''.join(content.split())
-    word_list = word_list.lower()
-    for word in bad_words:
-        if word in word_list:
+    
+    words = content.lower().split()
+    two_words = [words[i - 1] + words[i] for i in range(1, len(words))]
+    three_words = [words[i - 2] + words[i - 1] + words[i] for i in range(2, len(words))]
+    words += two_words
+    words += three_words
+    
+    for word in words:
+        if word in bad_words:
             stars = '**' + '\*' * (len(word) - 2) + '**'
             censored = word[:1] + stars + word[-1:]
             post = 'Non si dice {}, {}!'.format(censored, epiteto)
@@ -185,7 +190,7 @@ async def on_message(message):
     if message.author.bot:
         return
     
-    await gif_cop.add(message)    
+    await gif_cop.add(message)
     reproached = await reproach(message)
     channel = message.channel
     is_private = isinstance(channel, discord.channel.DMChannel)
