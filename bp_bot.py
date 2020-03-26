@@ -13,13 +13,21 @@ with open('token', 'r') as file:
 # id che si possono trovare nell'interfaccia di discord in "developer mode"
 LORENZO_ID = 691214172360409117 
 DEBUG_CHAT = 691024389730336842
+DEBUG_GUILD = 691024389730336839
 REPARTO_CHAT = 690344893675339962
 CAPANNONE_CHAT = 691315170823372811
+REPARTO_GUILD = 690344893184213042
+
+# legge gli id dei personaggi con un ruolo a lupus
+with open('lupus_roles', 'r') as file:
+    lupus_roles = file.readlines()
+    lupus_roles = [s.split()[0] for s in lupus_roles]
 
 # modalità debug per testare il bot prima di lanciarlo sul server ufficiale
 if len(sys.argv) > 1:
     REPARTO_CHAT = DEBUG_CHAT
     CAPANNONE_CHAT = DEBUG_CHAT
+    REPARTO_GUILD = DEBUG_GUILD
 else:
     # se non sono in modalità debugger scrivo in un file logger per avere un 
     # report di eventuali crush
@@ -35,18 +43,43 @@ bot.description = 'Sono il fondatore del moviemento Scout!'
 @bot.event
 async def on_ready():
     print('Bot is Ready.')
+
+# ------------------- FUNZIONI DA CHIAMARE PERIODICAMENTE --------------------
+# definisco un decorator che prende un datetime timestamp o una lista di
+# timestamps e trasforma una funzione in un task che viene eseguito ogni
+# giorno in quegli orari
+def scheduled_loop(timestamps):
+    if not isinstance(timestamps, list):
+        timestamps = [timestamps]
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+            await bot.wait_until_ready()
+            is_time = lambda dt: (datetime.now() - dt).seconds < 60
+            if any(is_time(dt) for dt in timestamps):
+                await func(*args, **kwargs)
+        return tasks.loop(seconds=60)(wrapper)
+    return decorator
+
     
 # ---------------------- INVIO RICORDELLE LUPUS -----------------------------
-#@bot.command()
-#async def prova(ctx):
-#    user = bot.get_user(LORENZO_ID)
-#    channel = user.dm_channel
-#    if channel is None:
-#        await user.create_dm()
-#        channel = user.dm_channel
-#    post = 'Ciao Lore'
-#    await channel.send(post)
-#   
+# ricordella quotidiana per chi deve agire la notte a lupus
+@scheduled_loop(datetime.strptime('20:30', '%H:%M'))
+async def ricordella_notturna(ctx):
+    guild = bot.get_guild(REPARTO_GUILD)
+    for id_code in lupus_roles:
+        member = guild.get_member(id_code)
+        capannone = bot.get_channel(CAPANNONE_CHAT)
+        dm_channel = member.dm_channel
+        if dm_channel is None:
+            await member.create_dm()
+            dm_channel = member.dm_channel
+        # smette di mandare i messaggi ai morti 
+        if not capannone.permissions_for(member).send_messages:
+            return
+        post = 'Tic-toc, le ore passano, la notte è calata, hai fatto la tua' 
+        post += 'mossa? Il destino della civiltà dipende da te!'
+        await dm_channel.send(post)
+   
     
 # --------------------------- COMDANDO DELLA BUONANOTTE --------------------
 # questo comando invia una foto di stelle e una cit dei MCR
@@ -66,22 +99,6 @@ async def buona(ctx, *args):
     if len(args) > 0 and args[0] == 'notte':
         await buonanotte(ctx)
     
-# ------------------- FUNZIONI DA CHIAMARE PERIODICAMENTE --------------------
-# definisco un decorator che prende un datetime timestamp o una lista di
-# timestamps e trasforma una funzione in un task che viene eseguito ogni
-# giorno in quegli orari
-def scheduled_loop(timestamps):
-    if not isinstance(timestamps, list):
-        timestamps = [timestamps]
-    def decorator(func):
-        async def wrapper(*args, **kwargs):
-            await bot.wait_until_ready()
-            is_time = lambda dt: (datetime.now() - dt).seconds < 60
-            if any(is_time(dt) for dt in timestamps):
-                await func(*args, **kwargs)
-        return tasks.loop(seconds=60)(wrapper)
-    return decorator
-
 # --------------------------- PERIODICHE CITAZIONI DI BP ----------------------
 # invia su chat generale una periodica citazione di bp letta da file
 with open('bp_quotes.txt', 'r') as file:
@@ -266,6 +283,7 @@ async def on_message(message):
         await anonymous_mail(message)        
 
 # lancio i task periodici e faccio partire il bot associandolo al token
+ricordella_notturna.start()
 proiezione_foto.start()
 avviso_posta.start()
 periodica_citazione.start()    
