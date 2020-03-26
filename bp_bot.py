@@ -64,7 +64,7 @@ def scheduled_loop(timestamps):
 # ---------------------- INVIO RICORDELLE LUPUS -----------------------------
 # ricordella quotidiana per chi deve agire la notte a lupus
 @scheduled_loop(datetime.strptime('20:30', '%H:%M'))
-async def ricordella_notturna(ctx):
+async def ricordella_notturna():
     guild = bot.get_guild(REPARTO_GUILD)
     for id_code in lupus_roles:
         member = guild.get_member(id_code)
