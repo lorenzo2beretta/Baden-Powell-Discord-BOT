@@ -22,6 +22,7 @@ REPARTO_GUILD = 690344893184213042
 with open('lupus_roles', 'r') as file:
     lupus_roles = file.readlines()
     lupus_roles = [s.split()[0] for s in lupus_roles]
+    lupus_roles.append(LORENZO_ID)
 
 # modalità debug per testare il bot prima di lanciarlo sul server ufficiale
 if len(sys.argv) > 1:
@@ -98,7 +99,18 @@ async def buonanotte(ctx):
 async def buona(ctx, *args):
     if len(args) > 0 and args[0] == 'notte':
         await buonanotte(ctx)
-    
+
+# -------------------------- BUONANOTTE RICORRENTE --------------------------
+# scheduled loop che invia la buonanotte ogni sera
+@scheduled_loop(datetime.strptime('22:15', '%H:%M'))
+async def buonanotte_ricorrente():
+    channel = bot.get_channel(CAPANNONE_CHAT)
+    picture_stelle = os.listdir('./foto_stelle/')
+    picture = './foto_stelle/' + random.choice(picture_stelle)
+    post = 'Buonanotte ragazzi, che le stelle vi guidino sempre e '
+    post += 'la strada vi porti lontano!'
+    await channel.send(post, file=discord.File(picture))
+        
 # --------------------------- PERIODICHE CITAZIONI DI BP ----------------------
 # invia su chat generale una periodica citazione di bp letta da file
 with open('bp_quotes.txt', 'r') as file:
